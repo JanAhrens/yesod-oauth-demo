@@ -1,0 +1,20 @@
+Default: &defaults
+  database: oauth.sqlite3
+  poolsize: 10
+
+Development:
+  <<: *defaults
+
+Testing:
+  database: oauth_test.sqlite3
+  <<: *defaults
+
+Staging:
+  database: oauth_staging.sqlite3
+  poolsize: 100
+  <<: *defaults
+
+Production:
+  database: oauth_production.sqlite3
+  poolsize: 100
+  <<: *defaults
