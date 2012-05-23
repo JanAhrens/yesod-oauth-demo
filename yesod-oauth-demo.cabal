@@ -105,6 +105,8 @@ executable         oauth
                  , yesod-test
                  , wai
                  , http-types
+                 , random
+                 , mime-mail
 
 test-suite integration-tests
     type: exitcode-stdio-1.0
