@@ -32,8 +32,7 @@ instance Read OAuthToken where
       correctLength = length s == 16
       failed = []
 
-      validChars []     = True
-      validChars (x:xs) = base64Char x && validChars xs
+      validChars = foldr ((&&) . base64Char) True
 
       base64Char x = or [ x `elem` ['A' .. 'Z']
                         , x `elem` ['a' .. 'z']
