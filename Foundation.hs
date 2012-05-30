@@ -28,6 +28,7 @@ import Settings (widgetFile, Extra (..))
 import Model
 import Text.Jasmine (minifym)
 import Text.Hamlet (hamletFile)
+import OAuthToken
 
 data App = App
     { settings      :: AppConfig DefaultEnv Extra

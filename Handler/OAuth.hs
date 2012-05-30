@@ -2,6 +2,7 @@
 module Handler.OAuth where
 
 import Import
+import OAuthToken
 import qualified Data.ByteString as BS
 import qualified Data.Text.Encoding as T
 import qualified Data.Text as TS
@@ -47,7 +48,7 @@ getAuthorizeR token = do
 |]
 
 postAuthorizeR :: OAuthToken -> Handler RepHtml
-postAuthorizeR (OAuthToken _) = do
+postAuthorizeR _ = do
   ((result, _), _) <- runFormPost authorizeForm
   let doRedirect = case result of
                   FormSuccess authorization -> granted authorization
