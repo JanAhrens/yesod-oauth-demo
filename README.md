@@ -19,16 +19,20 @@ What works already
 * Basic OAuth endpoint routing
 * Random request token generation
 * Custom datatype for OAuth tokens
+* Draft for request token authorization
 
 What needs to be done
 ---------------------
 
+* Use OAuthToken datatype in database
 * Authorize a request token
 * Exchange request token for access token
-* Store OAuthToken datatype in database
+* OAuth signature validation (oauth_signature, oauth_signature_method)
+* OAuth parameter validation (oauth_token, oauth_consumer_key, oauth_version)
+* Example API call to test the implementation and workflow
 
-What is considered advanced stuff
----------------------------------
+What is not part of the initial implementation
+----------------------------------------------
 
-* OAuth consumer management
-* Permission management
+* Consumer management (they need to be manually managed in the database)
+* Permission handling (the user can only give access to all of his data)
