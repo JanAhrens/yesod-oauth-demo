@@ -3,6 +3,7 @@ module Handler.OAuth where
 
 import Import
 import OAuthToken
+import Data.Maybe
 import qualified Data.ByteString as BS
 import qualified Data.Text.Encoding as T
 import qualified Data.Text as TS
@@ -18,16 +19,19 @@ postRequestTokenR :: Handler RepPlain
 postRequestTokenR = do
   token  <- liftIO randomKey
   secret <- liftIO randomKey
-  let reqTok = RequestToken token secret "http://yourdomain.com/callback?params"
+  let reqTok = RequestToken
+                (fromJust $ mkOAuthToken token)
+                (TS.pack secret)
+                "http://yourdomain.com/callback?params"
   _ <- runDB $ insert reqTok
   return $ RepPlain $ toContent $
-      BS.append "oauth_token=" $ BS.append (T.encodeUtf8 $ requestTokenToken reqTok) $
+      BS.append "oauth_token=" $ BS.append (T.encodeUtf8 . getToken . requestTokenToken $ reqTok) $
       BS.append "&oauth_token_secret=" $ BS.append (T.encodeUtf8 $ requestTokenSecret reqTok)
                 "&oauth_callback_confirmed=true"
   where
     randomKey = do
       stdgen <- newStdGen
-      return $ TS.pack $ fst $ randomString 16 stdgen
+      return $ fst $ randomString 16 stdgen
 
 -- OAuth step 2, get the authorization from the user
 data Authorization = Authorization

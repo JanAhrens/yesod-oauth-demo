@@ -10,12 +10,12 @@ Email
     UniqueEmail email
 
 AccessToken
-    token Text
+    token OAuthToken
     secret Text
     user UserId
 
 RequestToken
-    token Text
+    token OAuthToken
     secret Text
     callback_url Text
 

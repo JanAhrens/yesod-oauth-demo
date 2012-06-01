@@ -20,11 +20,11 @@ What works already
 * Random request token generation
 * Custom datatype for OAuth tokens
 * Draft for request token authorization
+* Use OAuthToken datatype in database
 
 What needs to be done
 ---------------------
 
-* Use OAuthToken datatype in database
 * Authorize a request token
 * Exchange request token for access token
 * OAuth signature validation (oauth_signature, oauth_signature_method)
