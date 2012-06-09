@@ -5,6 +5,7 @@ import Import
 import OAuthToken
 import Data.Maybe
 import qualified Data.ByteString as BS
+import qualified Data.ByteString.Char8 as C
 import qualified Data.Text.Encoding as T
 import qualified Data.Text as TS
 
@@ -17,21 +18,21 @@ import System.Random (newStdGen)
 -- OAuth step 1, fetch a request token
 postRequestTokenR :: Handler RepPlain
 postRequestTokenR = do
-  token  <- liftIO randomKey
-  secret <- liftIO randomKey
-  let reqTok = RequestToken
-                (fromJust $ mkOAuthToken token)
+  token  <- liftIO $ randomKey 16
+  secret <- liftIO $ randomKey 32
+  let reqTok = RequestTokenT
+                (read ("R-" ++ token) :: RequestToken)
                 (TS.pack secret)
                 "http://yourdomain.com/callback?params"
   _ <- runDB $ insert reqTok
   return $ RepPlain $ toContent $
-      BS.append "oauth_token=" $ BS.append (T.encodeUtf8 . getToken . requestTokenToken $ reqTok) $
-      BS.append "&oauth_token_secret=" $ BS.append (T.encodeUtf8 $ requestTokenSecret reqTok)
+      BS.append "oauth_token=" $ BS.append (C.pack . show . requestTokenTToken $ reqTok) $
+      BS.append "&oauth_token_secret=" $ BS.append (T.encodeUtf8 $ requestTokenTSecret reqTok)
                 "&oauth_callback_confirmed=true"
   where
-    randomKey = do
+    randomKey length = do
       stdgen <- newStdGen
-      return $ fst $ randomString 16 stdgen
+      return $ fst $ randomString length stdgen
 
 -- OAuth step 2, get the authorization from the user
 data Authorization = Authorization
@@ -41,7 +42,7 @@ authorizeForm :: Form Authorization
 authorizeForm = renderDivs $ Authorization
   <$> areq checkBoxField "Please access my data" Nothing
 
-getAuthorizeR :: OAuthToken -> Handler RepHtml
+getAuthorizeR :: RequestToken -> Handler RepHtml
 getAuthorizeR token = do
   (widget, enctype) <- generateFormPost authorizeForm
   defaultLayout [whamlet|
@@ -51,7 +52,7 @@ getAuthorizeR token = do
     <input type="submit" value="Do as I say">
 |]
 
-postAuthorizeR :: OAuthToken -> Handler RepHtml
+postAuthorizeR :: RequestToken -> Handler RepHtml
 postAuthorizeR _ = do
   ((result, _), _) <- runFormPost authorizeForm
   let doRedirect = case result of
@@ -64,6 +65,6 @@ postAuthorizeR _ = do
 |]
 
 -- OAuth step 3, fetch the access token
-postAccessTokenR :: OAuthToken -> Handler RepPlain
+postAccessTokenR :: RequestToken -> Handler RepPlain
 postAccessTokenR _ =
   return $ RepPlain $ toContent ("oauth_token=&oauth_token_secret=&ident=" :: ByteString)

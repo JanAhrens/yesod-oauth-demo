@@ -1,8 +1,8 @@
 module OAuthToken
-  ( OAuthToken
-  , mkOAuthToken
-  , getToken
-  ) where
+( AccessToken
+, RequestToken
+, OAuthToken
+) where
 
 import Prelude
 import Yesod
@@ -12,49 +12,88 @@ import Database.Persist.Store
   , PersistValue (PersistText)
   )
 
-newtype OAuthToken = Token T.Text deriving (Eq)
+class (Read a, Show a, PathPiece a, PersistField a) => OAuthToken a where
+  mkToken  :: String -> Maybe a
+  getToken :: a -> T.Text
 
-instance Show OAuthToken where
-  show (Token tok) = show tok
+newtype AccessToken  = AccessToken  T.Text deriving (Eq)
+newtype RequestToken = RequestToken T.Text deriving (Eq)
 
-getToken :: OAuthToken -> T.Text
-getToken (Token tok) = tok
+instance Show AccessToken where
+  show (AccessToken t) = T.unpack t
 
--- TODO: this needs to be tested with unit tests
-mkOAuthToken :: String -> Maybe OAuthToken
-mkOAuthToken text = if correctLength && validChars text
-                    then Just $ Token $ T.pack text
+instance Show RequestToken where
+  show (RequestToken t) = T.unpack t
+
+instance OAuthToken RequestToken where
+  mkToken = mkOAuthToken RequestToken "R-"
+  getToken (RequestToken t) = t
+
+instance OAuthToken AccessToken where
+  mkToken = mkOAuthToken AccessToken "A-"
+  getToken (AccessToken t) = t
+
+simpleReadsPrec _ s = case mkToken s of
+                          Just tok -> [(tok, "")]
+                          Nothing  -> []
+
+instance Read AccessToken where
+  readsPrec = simpleReadsPrec
+
+instance Read RequestToken where
+  readsPrec = simpleReadsPrec
+
+mkOAuthToken :: (OAuthToken a) => (T.Text -> a) -> String -> String -> Maybe a
+mkOAuthToken constructor pre text = if correctLength && validChars text && prefixMatches
+                    then Just $ constructor $ T.pack text
                     else Nothing
   where
-    correctLength = length text == 16
+    length_without_prefix = 16
+
+    correctLength = length text == length_without_prefix + length pre
 
     validChars = foldr ((&&) . base64Char) True
+
+    prefixMatches = take (length pre) text == pre
 
     base64Char x = or [ x `elem` ['A' .. 'Z']
                       , x `elem` ['a' .. 'z']
                       , x `elem` ['0' .. '9']
-                      , x `elem` "+/=" ]
+                      , x `elem` "+/="
+                      , x `elem` pre]
 
-instance PathPiece OAuthToken where
-  fromPathPiece s =
+generalFromPathPiece s =
     case reads $ T.unpack s of
       [(a, "")] -> Just a
       _         -> Nothing
 
-  toPathPiece s = T.pack $ show s
+instance PathPiece RequestToken where
+  fromPathPiece = generalFromPathPiece
+  toPathPiece   = T.pack . show
 
-instance Read OAuthToken where
-  readsPrec _ s = case mkOAuthToken s of
-                    Just tok -> [(tok, "")]
-                    Nothing  -> []
+instance PathPiece AccessToken where
+  fromPathPiece = generalFromPathPiece
+  toPathPiece   = T.pack . show
 
-instance PersistField OAuthToken where
+
+instance PersistField RequestToken where
   sqlType _            = SqlString
 
-  toPersistValue token = PersistText $ getToken token
+  toPersistValue = PersistText . getToken
 
   fromPersistValue (PersistText val)
-                      = case mkOAuthToken $ T.unpack val of
+                      = case mkToken $ T.unpack val of
+                          Just tok -> Right tok
+                          Nothing  -> Left "no token"
+  fromPersistValue _  = Left "unsupported value"
+
+instance PersistField AccessToken where
+  sqlType _            = SqlString
+
+  toPersistValue = PersistText . getToken
+
+  fromPersistValue (PersistText val)
+                      = case mkToken $ T.unpack val of
                           Just tok -> Right tok
                           Nothing  -> Left "no token"
   fromPersistValue _  = Left "unsupported value"

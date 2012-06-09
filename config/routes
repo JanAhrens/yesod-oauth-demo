@@ -6,6 +6,6 @@
 
 / HomeR GET
 
-/request_token            RequestTokenR POST
-/authorize/#OAuthToken    AuthorizeR    GET POST
-/access_token/#OAuthToken AccessTokenR  POST
+/request_token              RequestTokenR POST
+/authorize/#RequestToken    AuthorizeR    GET POST
+/access_token/#RequestToken AccessTokenR  POST

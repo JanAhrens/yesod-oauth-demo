@@ -9,15 +9,14 @@ Email
     verkey Text Maybe
     UniqueEmail email
 
-AccessToken
-    token OAuthToken
-    secret Text
-    user UserId
+RequestTokenT
+  token RequestToken
+  secret Text
+  callback_url Text
 
-RequestToken
-    token OAuthToken
-    secret Text
-    callback_url Text
+AccessTokenT
+  token AccessToken
+  secret Text
 
 OauthConsumer
     token Text
