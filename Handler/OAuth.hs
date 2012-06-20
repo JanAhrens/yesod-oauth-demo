@@ -3,7 +3,6 @@ module Handler.OAuth where
 
 import Import
 import OAuthToken
-import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as C
 import qualified Data.Text.Encoding as T
 import qualified Data.Text as TS
@@ -19,15 +18,20 @@ postRequestTokenR :: Handler RepPlain
 postRequestTokenR = do
   token  <- liftIO $ randomKey 16
   secret <- liftIO $ randomKey 32
+
   let reqTok = RequestTokenT
                 (read ("R-" ++ token) :: RequestToken)
                 (TS.pack secret)
-                "http://yourdomain.com/callback?params"
+                "http://yourdomain.com/callback?params" -- TODO replace with actual param
   _ <- runDB $ insert reqTok
-  return $ RepPlain $ toContent $
-      BS.append "oauth_token=" $ BS.append (C.pack . show . requestTokenTToken $ reqTok) $
-      BS.append "&oauth_token_secret=" $ BS.append (T.encodeUtf8 $ requestTokenTSecret reqTok)
-                "&oauth_callback_confirmed=true"
+
+  let result = [ ("oauth_token",              C.pack . show . requestTokenTToken  $ reqTok)
+               , ("oauth_token_secret",       T.encodeUtf8  . requestTokenTSecret $ reqTok)
+               , ("oauth_callback_confirmed", "true")
+               ]
+  return $
+    RepPlain $ toContent $ H.renderSimpleQuery False result
+
   where
     randomKey len = do
       stdgen <- newStdGen
