@@ -3,7 +3,6 @@ module Handler.OAuth where
 
 import Import
 import OAuthToken
-import Data.Maybe
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as C
 import qualified Data.Text.Encoding as T
@@ -30,9 +29,9 @@ postRequestTokenR = do
       BS.append "&oauth_token_secret=" $ BS.append (T.encodeUtf8 $ requestTokenTSecret reqTok)
                 "&oauth_callback_confirmed=true"
   where
-    randomKey length = do
+    randomKey len = do
       stdgen <- newStdGen
-      return $ fst $ randomString length stdgen
+      return $ fst $ randomString len stdgen
 
 -- OAuth step 2, get the authorization from the user
 data Authorization = Authorization

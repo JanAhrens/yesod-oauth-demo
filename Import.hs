@@ -20,7 +20,6 @@ import Control.Applicative ((<$>), (<*>), pure)
 import Data.Text (Text)
 import Settings.StaticFiles
 import Data.ByteString
-import OAuthToken
 
 #if __GLASGOW_HASKELL__ < 704
 infixr 5 <>

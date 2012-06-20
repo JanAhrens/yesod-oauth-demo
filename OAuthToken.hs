@@ -33,6 +33,7 @@ instance OAuthToken AccessToken where
   mkToken = mkOAuthToken AccessToken "A-"
   getToken (AccessToken t) = t
 
+simpleReadsPrec :: (OAuthToken t) => Int -> ReadS t
 simpleReadsPrec _ s = case mkToken s of
                           Just tok -> [(tok, "")]
                           Nothing  -> []
@@ -62,6 +63,7 @@ mkOAuthToken constructor pre text = if correctLength && validChars text && prefi
                       , x `elem` "+/="
                       , x `elem` pre]
 
+generalFromPathPiece :: OAuthToken a => T.Text -> Maybe a
 generalFromPathPiece s =
     case reads $ T.unpack s of
       [(a, "")] -> Just a
