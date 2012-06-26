@@ -12,5 +12,5 @@ Staging:
   <<: *defaults
 
 Production:
-  #approot: "http://www.example.com"
+  approot: "http://yesod-oauth-demo.herokuapp.com"
   <<: *defaults
