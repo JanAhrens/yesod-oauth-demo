@@ -15,8 +15,17 @@ import System.Random (newStdGen)
 
 import Control.Applicative ((<$>), (<*>))
 
+-- TODO should be moved to a different location once its ready
+typeFormUrlencode :: ContentType
+typeFormUrlencode = "application/x-www-form-urlencode"
+
+newtype RepFormUrlencode = RepFormUrlencode [(ByteString, ByteString)]
+instance HasReps RepFormUrlencode where
+  chooseRep (RepFormUrlencode c) _ = return ( typeFormUrlencode
+                                            , toContent $ H.renderSimpleQuery False c )
+
 -- OAuth step 1, fetch a request token
-postRequestTokenR :: Handler RepPlain
+postRequestTokenR :: Handler RepFormUrlencode
 postRequestTokenR = do
   token  <- liftIO $ randomKey 16
   secret <- liftIO $ randomKey 32
@@ -27,12 +36,10 @@ postRequestTokenR = do
                 "http://yourdomain.com/callback?params" -- TODO replace with actual param
   _ <- runDB $ insert reqTok
 
-  let result = [ ("oauth_token",              C.pack . show . requestTokenTToken  $ reqTok)
-               , ("oauth_token_secret",       T.encodeUtf8  . requestTokenTSecret $ reqTok)
-               , ("oauth_callback_confirmed", "true")
-               ]
-  return $
-    RepPlain $ toContent $ H.renderSimpleQuery False result
+  return $ RepFormUrlencode
+    [ ("oauth_token",              C.pack . show . requestTokenTToken  $ reqTok)
+    , ("oauth_token_secret",       T.encodeUtf8  . requestTokenTSecret $ reqTok)
+    , ("oauth_callback_confirmed", "true") ]
 
   where
     randomKey len = do
@@ -69,18 +76,10 @@ postAuthorizeR _ = do
 <p>Your data stays on our server.
 |]
 
-type Verifier = Int
-
-data OAuth = OAuth {
-    oauthToken    :: Text,
-    oauthVerifier :: Verifier
-  }
-  deriving Show
-
 -- OAuth step 3, fetch the access token
-postAccessTokenR :: Handler RepPlain
+postAccessTokenR :: Handler RepFormUrlencode
 postAccessTokenR = do
-  oauth <- runInputGet $ OAuth
-            <$> ireq textField "oauth_token"
-            <*> ireq intField  "oauth_verifier"
-  return $ RepPlain $ toContent ("oauth_token=&oauth_token_secret=&ident=" :: ByteString)
+  (token, verifier) <- runInputGet $ (,)
+                         <$> ireq textField "oauth_token"
+                         <*> ireq textField "oauth_verifier"
+  return $ RepFormUrlencode [("oauth_token", ""), ("oauth_token_secret", ""), ("ident", "")]
