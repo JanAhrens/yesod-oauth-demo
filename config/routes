@@ -8,4 +8,4 @@
 
 /request_token              RequestTokenR POST
 /authorize/#RequestToken    AuthorizeR    GET POST
-/access_token/#RequestToken/#Int AccessTokenR  POST
+/access_token               AccessTokenR  POST

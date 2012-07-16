@@ -18,4 +18,4 @@
 
 <h2>3. exchange request token for access token
 <p>
-  <code>$ curl -XPOST @{AccessTokenR sampleRequestToken sampleVerifier}
+  <code>$ curl -XPOST @{AccessTokenR} -d 'oauth_token=#{sampleRequestTokenString}' -d 'oauth_verifier=#{sampleVerifier}'

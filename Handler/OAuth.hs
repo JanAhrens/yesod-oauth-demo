@@ -13,6 +13,8 @@ import Network.Wai
 import Network.Mail.Mime (randomString)
 import System.Random (newStdGen)
 
+import Control.Applicative ((<$>), (<*>))
+
 -- OAuth step 1, fetch a request token
 postRequestTokenR :: Handler RepPlain
 postRequestTokenR = do
@@ -69,7 +71,16 @@ postAuthorizeR _ = do
 
 type Verifier = Int
 
+data OAuth = OAuth {
+    oauthToken    :: Text,
+    oauthVerifier :: Verifier
+  }
+  deriving Show
+
 -- OAuth step 3, fetch the access token
-postAccessTokenR :: RequestToken -> Verifier -> Handler RepPlain
-postAccessTokenR _ _ =
+postAccessTokenR :: Handler RepPlain
+postAccessTokenR = do
+  oauth <- runInputGet $ OAuth
+            <$> ireq textField "oauth_token"
+            <*> ireq intField  "oauth_verifier"
   return $ RepPlain $ toContent ("oauth_token=&oauth_token_secret=&ident=" :: ByteString)

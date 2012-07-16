@@ -4,10 +4,15 @@ module Handler.Home where
 import Import
 import OAuthToken
 
+import qualified Data.Text as T
+
 getHomeR :: Handler RepHtml
 getHomeR = defaultLayout $(whamletFile "templates/documentation.hamlet")
   where
     sampleRequestToken :: RequestToken
-    sampleRequestToken = read "R-ABCDEFGHIJKLMNOP"
+    sampleRequestToken = read $ T.unpack sampleRequestTokenString
 
-    sampleVerifier = 12345
+    sampleRequestTokenString :: Text
+    sampleRequestTokenString = "R-ABCDEFGHIJKLMNOP"
+
+    sampleVerifier = "12345" :: Text
