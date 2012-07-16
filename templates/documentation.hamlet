@@ -1,0 +1,21 @@
+<h1>Documentation
+<p>
+  This is a demo of the OAuth 1.0 implementation for Yesod.
+<p>
+  The implementation is still a work in progress, so don't expect everything to work.
+
+<h2>1. create a request token
+<p>
+  <code>$ curl -XPOST @{RequestTokenR}
+<p>
+  <code>oauth_token=R-DceGidmXyLRPt3Ox&oauth_token_secret=3G2GdINBwxhGSPEBaC8ywbHLVWlEGoa3&oauth_callback_confirmed=true
+
+<h2>2. authorize the request token
+<p>
+  The user needs to #
+  <a href=@{AuthorizeR sampleRequestToken}>visit the authorize site
+  .
+
+<h2>3. exchange request token for access token
+<p>
+  <code>$ curl -XPOST @{AccessTokenR sampleRequestToken sampleVerifier}

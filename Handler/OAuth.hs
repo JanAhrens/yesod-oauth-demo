@@ -67,7 +67,9 @@ postAuthorizeR _ = do
 <p>Your data stays on our server.
 |]
 
+type Verifier = Int
+
 -- OAuth step 3, fetch the access token
-postAccessTokenR :: RequestToken -> Handler RepPlain
-postAccessTokenR _ =
+postAccessTokenR :: RequestToken -> Verifier -> Handler RepPlain
+postAccessTokenR _ _ =
   return $ RepPlain $ toContent ("oauth_token=&oauth_token_secret=&ident=" :: ByteString)
