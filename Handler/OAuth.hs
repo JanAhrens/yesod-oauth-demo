@@ -13,13 +13,11 @@ import Network.Wai
 import Network.Mail.Mime (randomString)
 import System.Random (newStdGen)
 
-import Control.Applicative ((<$>), (<*>))
-
 -- TODO should be moved to a different location once its ready
 typeFormUrlencode :: ContentType
 typeFormUrlencode = "application/x-www-form-urlencode"
 
-newtype RepFormUrlencode = RepFormUrlencode [(ByteString, ByteString)]
+newtype RepFormUrlencode = RepFormUrlencode [(C.ByteString, C.ByteString)]
 instance HasReps RepFormUrlencode where
   chooseRep (RepFormUrlencode c) _ = return ( typeFormUrlencode
                                             , toContent $ H.renderSimpleQuery False c )

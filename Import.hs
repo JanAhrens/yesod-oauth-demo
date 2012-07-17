@@ -3,13 +3,13 @@ module Import
     , module Yesod
     , module Foundation
     , module Settings.StaticFiles
+    , module Settings.Development
     , module Data.Monoid
     , module Control.Applicative
     , Text
 #if __GLASGOW_HASKELL__ < 704
     , (<>)
 #endif
-    , ByteString
     ) where
 
 import Prelude hiding (writeFile, readFile, head, tail, init, last)
@@ -19,7 +19,7 @@ import Data.Monoid (Monoid (mappend, mempty, mconcat))
 import Control.Applicative ((<$>), (<*>), pure)
 import Data.Text (Text)
 import Settings.StaticFiles
-import Data.ByteString
+import Settings.Development
 
 #if __GLASGOW_HASKELL__ < 704
 infixr 5 <>

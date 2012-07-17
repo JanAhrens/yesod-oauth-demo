@@ -1,6 +1,7 @@
 module Foundation
     ( App (..)
     , Route (..)
+    , AppMessage (..)
     , resourcesApp
     , Handler
     , Widget
@@ -22,24 +23,27 @@ import Yesod.Default.Util (addStaticContentExternal)
 import Yesod.Logger (Logger, logMsg, formatLogText)
 import Network.HTTP.Conduit (Manager)
 import qualified Settings
-import qualified Database.Persist.Store as DPS
+import qualified Database.Persist.Store
+import Settings.StaticFiles
 import Database.Persist.GenericSql
 import Settings (widgetFile, Extra (..))
 import Model
 import Text.Jasmine (minifym)
+--not used
+--import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
 import OAuthToken
 
 data App = App
-    { settings      :: AppConfig DefaultEnv Extra
-    , getLogger     :: Logger
-    , getStatic     :: Static                                       -- ^ Settings for static file serving.
-    , connPool      :: DPS.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
-    , httpManager   :: Manager
+    { settings :: AppConfig DefaultEnv Extra
+    , getLogger :: Logger
+    , getStatic :: Static -- ^ Settings for static file serving.
+    , connPool :: Database.Persist.Store.PersistConfigPool Settings.PersistConfig -- ^ Database connection pool.
+    , httpManager :: Manager
     , persistConfig :: Settings.PersistConfig
     }
 
---mkMessage "App" "messages" "en"
+mkMessage "App" "messages" "en"
 
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
@@ -51,12 +55,19 @@ instance Yesod App where
     -- disable the session backend, to not send cookies with each API request
     makeSessionBackend _ = return Nothing
 
+    -- Store session data on the client in encrypted cookies,
+    -- default session idle timeout is 120 minutes
+    --makeSessionBackend _ = do
+    --    key <- getKey "config/client_session_key.aes"
+    --    return . Just $ clientSessionBackend key 120
+
     defaultLayout widget = do
         master <- getYesod
         mmsg <- getMessage
 
         pc <- widgetToPageContent $ do
             $(widgetFile "normalize")
+            addStylesheet $ StaticR css_bootstrap_css
             $(widgetFile "default-layout")
         hamletToRepHtml $(hamletFile "templates/default-layout-wrapper.hamlet")
 
@@ -71,11 +82,12 @@ instance Yesod App where
 
     addStaticContent = addStaticContentExternal minifym base64md5 Settings.staticDir (StaticR . flip StaticRoute [])
 
+    jsLoader _ = BottomOfBody
 instance YesodPersist App where
     type YesodPersistBackend App = SqlPersist
     runDB f = do
         master <- getYesod
-        DPS.runPool
+        Database.Persist.Store.runPool
             (persistConfig master)
             f
             (connPool master)
@@ -94,6 +106,7 @@ instance YesodAuth App where
                 fmap Just $ insert $ User (credsIdent creds) Nothing
 
     authPlugins _ = [authBrowserId, authGoogleEmail]
+
     authHttpManager = httpManager
 
 instance RenderMessage App FormMessage where

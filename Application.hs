@@ -2,6 +2,7 @@
 module Application
     ( makeApplication
     , getApplicationDev
+    , makeFoundation
     ) where
 
 import Import
@@ -10,12 +11,9 @@ import Yesod.Auth
 import Yesod.Default.Config
 import Yesod.Default.Main
 import Yesod.Default.Handlers
-#if DEVELOPMENT
-import Yesod.Logger (Logger, logBS)
-import Network.Wai.Middleware.RequestLogger (logCallbackDev)
-#else
 import Yesod.Logger (Logger, logBS, toProduction)
-import Network.Wai.Middleware.RequestLogger (logCallback)
+import Network.Wai.Middleware.RequestLogger (logCallback, logCallbackDev)
+#ifndef DEVELOPMENT
 import qualified Web.Heroku
 #endif
 import qualified Database.Persist.Store
@@ -25,6 +23,7 @@ import qualified Data.Aeson.Types as AT
 import qualified Data.HashMap.Strict as M
 
 -- Import all relevant handler modules here.
+-- Don't forget to add new modules to your cabal file!
 import Handler.Home
 import Handler.OAuth
 
@@ -36,13 +35,9 @@ makeApplication conf logger = do
     app <- toWaiAppPlain foundation
     return $ logWare app
   where
-#ifdef DEVELOPMENT
-    logWare = logCallbackDev (logBS setLogger)
-    setLogger = logger
-#else
-    setLogger = toProduction logger -- by default the logger is set for development
-    logWare = logCallback (logBS setLogger)
-#endif
+    setLogger = if development then logger else toProduction logger
+    logWare   = if development then logCallbackDev (logBS setLogger)
+                               else logCallback    (logBS setLogger)
 
 makeFoundation :: AppConfig DefaultEnv Extra -> Logger -> IO App
 makeFoundation conf setLogger = do
@@ -56,11 +51,14 @@ makeFoundation conf setLogger = do
     Database.Persist.Store.runPool dbconf (runMigration migrateAll) p
     return $ App conf setLogger s p manager dbconf
 
+-- for yesod devel
 getApplicationDev :: IO (Int, Application)
 getApplicationDev =
     defaultDevelApp loader makeApplication
   where
-    loader = loadConfig (configSettings Development) { csParseExtra = parseExtra }
+    loader = loadConfig (configSettings Development)
+        { csParseExtra = parseExtra
+        }
 
 combineMappings :: AT.Value -> AT.Value -> AT.Value
 combineMappings (AT.Object m1) (AT.Object m2) = AT.Object $ m1 `M.union` m2
