@@ -9,14 +9,19 @@ Email
     UniqueEmail email
 
 RequestTokenT
-  token RequestToken
-  secret Text
-  callback_url Text
+    token RequestToken
+    secret Text
+    callback_url Text
 
 AccessTokenT
-  token AccessToken
-  secret Text
+    token AccessToken
+    secret Text
 
 OauthConsumer
     token Text
     secret Text
+
+Note
+    user UserId
+    subject Text
+    content Text

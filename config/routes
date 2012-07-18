@@ -9,3 +9,6 @@
 /request_token              RequestTokenR POST
 /authorize/#RequestToken    AuthorizeR    GET POST
 /access_token               AccessTokenR  POST
+
+-- demo for OAuth protected resource
+/notes NotesR GET

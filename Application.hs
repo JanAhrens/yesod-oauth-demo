@@ -26,6 +26,7 @@ import qualified Data.HashMap.Strict as M
 -- Don't forget to add new modules to your cabal file!
 import Handler.Home
 import Handler.OAuth
+import Handler.Notes
 
 mkYesodDispatch "App" resourcesApp
 

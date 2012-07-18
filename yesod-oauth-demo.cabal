@@ -30,6 +30,7 @@ library
                      Settings.Development
                      Handler.Home
                      Handler.OAuth
+                     Handler.Notes
                      OAuthToken
 
 
@@ -83,9 +84,11 @@ library
                  , http-types
                  , random
                  , mime-mail
+                 , yesod-json
                  , heroku
                  , aeson
                  , unordered-containers
+                 , bytestring
 
 executable         oauth
     if flag(library-only)
