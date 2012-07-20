@@ -11,4 +11,5 @@
 /access_token               AccessTokenR  POST
 
 -- demo for OAuth protected resource
-/notes NotesR GET
+/notes NotesR GET POST
+/rest/notes RestNotesR GET

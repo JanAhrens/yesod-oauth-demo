@@ -8,6 +8,7 @@ module Foundation
     , Form
     , maybeAuth
     , requireAuth
+    , requireAuthId
     , module Settings
     , module Model
     ) where
@@ -29,8 +30,7 @@ import Database.Persist.GenericSql
 import Settings (widgetFile, Extra (..))
 import Model
 import Text.Jasmine (minifym)
---not used
---import Web.ClientSession (getKey)
+import Web.ClientSession (getKey)
 import Text.Hamlet (hamletFile)
 import OAuthToken
 
@@ -53,13 +53,13 @@ instance Yesod App where
     approot = ApprootMaster $ appRoot . settings
 
     -- disable the session backend, to not send cookies with each API request
-    makeSessionBackend _ = return Nothing
+    --makeSessionBackend _ = return Nothing
 
     -- Store session data on the client in encrypted cookies,
     -- default session idle timeout is 120 minutes
-    --makeSessionBackend _ = do
-    --    key <- getKey "config/client_session_key.aes"
-    --    return . Just $ clientSessionBackend key 120
+    makeSessionBackend _ = do
+        key <- getKey "config/client_session_key.aes"
+        return . Just $ clientSessionBackend key 120
 
     defaultLayout widget = do
         master <- getYesod

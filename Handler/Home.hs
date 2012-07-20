@@ -7,7 +7,9 @@ import OAuthToken
 import qualified Data.Text as T
 
 getHomeR :: Handler RepHtml
-getHomeR = defaultLayout $(whamletFile "templates/documentation.hamlet")
+getHomeR = do
+  muser <- maybeAuth
+  defaultLayout $(whamletFile "templates/documentation.hamlet")
   where
     sampleRequestToken :: RequestToken
     sampleRequestToken = read $ T.unpack sampleRequestTokenString

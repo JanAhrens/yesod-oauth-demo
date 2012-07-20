@@ -1,0 +1,9 @@
+<ul>
+  $forall Entity _ note <- db
+    <li>#{noteSubject note}
+      <p>
+        #{noteContent note}
+
+<form method=POST enctype=#{enctype} action=@{NotesR}>
+  ^{widget}
+  <input type=submit>

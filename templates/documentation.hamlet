@@ -1,3 +1,9 @@
+$maybe Entity _ user <- muser
+  Hello #{userIdent user} #
+  <a href=@{AuthR LogoutR}>Logout
+$nothing
+  <a href=@{AuthR LoginR}>Login
+
 <h1>Documentation
 <p>
   This is a demo of the OAuth 1.0 implementation for Yesod.

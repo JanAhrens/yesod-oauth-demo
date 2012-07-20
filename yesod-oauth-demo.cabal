@@ -32,6 +32,7 @@ library
                      Handler.OAuth
                      Handler.Notes
                      OAuthToken
+                     OAuthSupport
 
 
     if flag(dev) || flag(library-only)
@@ -87,6 +88,7 @@ library
                  , yesod-json
                  , heroku
                  , aeson
+                 , containers
                  , unordered-containers
                  , bytestring
 
