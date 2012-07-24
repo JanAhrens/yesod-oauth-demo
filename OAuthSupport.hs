@@ -17,7 +17,7 @@ data OAuthParams = OAuthParams
 
 toOAuthHandler :: Handler a -> Handler a
 toOAuthHandler handler = do
-  e <- myRunInputGet $ OAuthParams
+  res <- myRunInputGet $ OAuthParams
                     <$> ireq textField "oauth_token"
                     <*> ireq textField "oauth_consumer"
                     <*> ireq textField "oauth_version"
@@ -25,11 +25,12 @@ toOAuthHandler handler = do
                     <*> ireq textField "oauth_signature_method"
                     <*> iopt textField "oauth_timestamp"
                     <*> iopt textField "oauth_nonce"
-  case e of
+  case res of
     Right _ -> handler
+    -- TODO implement propper error handling
     Left _  -> redirect NotesR
 
--- COPY AND PASTE CODE :'-(
+-- TODO here follows copy and paste code: find out how to reuse or improve
 
 type DText = [Text] -> [Text]
 myRunInputGet :: FormInput sub master OAuthParams
