@@ -91,6 +91,7 @@ library
                  , containers
                  , unordered-containers
                  , bytestring
+                 , authenticate-oauth
 
 executable         oauth
     if flag(library-only)

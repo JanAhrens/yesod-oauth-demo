@@ -4,6 +4,7 @@ import Import
 
 import Control.Monad (liftM)
 import qualified Data.Map as Map
+import Web.Authenticate.OAuth
 
 data OAuthParams = OAuthParams
   { token           :: Text,
@@ -26,7 +27,17 @@ toOAuthHandler handler = do
                     <*> iopt textField "oauth_timestamp"
                     <*> iopt textField "oauth_nonce"
   case res of
-    Right _ -> handler
+    Right _ -> do
+      -- TOOD get real credentials
+      let tok = newCredential "foo" "bar"
+      -- TODO full OAuth type
+      let oa = def
+      -- TODO use this to construct `req'
+      let origRequest = getRequest
+      let req = def
+      -- TODO compare `res' with `sign'
+      sign <- genSign oa tok req
+      handler
     -- TODO implement propper error handling
     Left _  -> redirect NotesR
 
