@@ -10,6 +10,7 @@ import Yesod.Test
 import Application (makeFoundation)
 
 import HomeTest
+import RequestTokenTest
 
 main :: IO ()
 main = do
@@ -17,3 +18,4 @@ main = do
     foundation <- makeFoundation conf
     app <- toWaiAppPlain foundation
     runTests app (connPool foundation) homeSpecs
+    runTests app (connPool foundation) requestTokenSpecs
