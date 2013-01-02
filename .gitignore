@@ -2,3 +2,4 @@ dist
 static/tmp
 *.sqlite3
 .vagrant
+yesod-devel
