@@ -34,7 +34,7 @@ postRequestTokenR = do
                 "http://yourdomain.com/callback?params" -- TODO replace with actual param
   _ <- runDB $ insert reqTok
 
-  return $ RepFormUrlencode
+  sendResponseStatus H.status201 $ RepFormUrlencode
     [ ("oauth_token",              C.pack . show . requestTokenTToken  $ reqTok)
     , ("oauth_token_secret",       T.encodeUtf8  . requestTokenTSecret $ reqTok)
     , ("oauth_callback_confirmed", "true") ]

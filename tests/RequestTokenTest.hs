@@ -10,4 +10,4 @@ requestTokenSpecs =
   describe "RequestToken" $
     it "can successfully create request tokens" $ do
       post_ "/request_token"
-      statusIs 200
+      statusIs 201
