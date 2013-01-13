@@ -12,11 +12,13 @@ import TestImport
 
 import HomeTest
 import RequestTokenTest
+import AuthorizeTest
 
 specs :: Specs
 specs = do
   homeSpecs
   requestTokenSpecs
+  authorizeSpecs
 
 main :: IO ()
 main = do
